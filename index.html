@@ -5,24 +5,41 @@
     <title>TickBox</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        #taskForm {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- Title and Logo-->
+    <!-- Title and Logo -->
     <div class="title-container">
         <img src="favicon.png" alt="tickbox logo" class="title-icon">
         <h1>TickBox</h1>
     </div>
+
     <p>Personal To-Do Checklist</p>
 
-    <!-- Add Task Button -->
+    <!-- Start Button -->
     <div id="StartButton">
         <button onclick="showForm()">Start a List</button>
     </div>
-    
+
+    <!-- Task Form -->
     <div id="taskForm">
-        <br>
 
         <input type="text" id="taskInput" placeholder="Enter your task">
 
@@ -40,15 +57,19 @@
         <button onclick="addTask()">+ Add Task</button>
     </div>
 
+    <!-- Task List -->
     <h3>Task List</h3>
     <ul id="taskList"></ul>
 
     <script>
+
+        // Show form and hide start button
         function showForm() {
             document.getElementById("taskForm").style.display = "block";
             document.getElementById("StartButton").style.display = "none";
         }
 
+        // Add task to list
         function addTask() {
             var taskText = document.getElementById("taskInput").value;
             var priority = document.getElementById("priority").value;
@@ -59,12 +80,30 @@
             }
 
             var li = document.createElement("li");
-            li.textContent = taskText + " - " + priority + " Priority";
+
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+
+            var text = document.createElement("span");
+            text.textContent = " " + taskText + " - " + priority + " Priority";
+
+            // Toggle completed style
+            checkbox.onclick = function () {
+                if (checkbox.checked) {
+                    text.classList.add("completed");
+                } else {
+                    text.classList.remove("completed");
+                }
+            };
+
+            li.appendChild(checkbox);
+            li.appendChild(text);
 
             document.getElementById("taskList").appendChild(li);
 
             document.getElementById("taskInput").value = "";
         }
+
     </script>
 
 </body>
