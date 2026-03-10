@@ -30,7 +30,7 @@
         <img src="favicon.png" alt="tickbox logo" class="title-icon">
         <h1>TickBox</h1>
     </div>
-
+    <small>Work in Progress</small>
     <p>Personal To-Do Checklist</p>
 
     <!-- Start Button -->
@@ -85,7 +85,7 @@
             checkbox.type = "checkbox";
 
             var text = document.createElement("span");
-            text.textContent = " " + taskText + " - " + priority + " Priority";
+            text.textContent = taskText + " - " + priority + " Priority";
 
             // Toggle completed style
             checkbox.onclick = function () {
