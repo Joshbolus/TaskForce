@@ -80,12 +80,19 @@
             }
 
             var li = document.createElement("li");
+            li.draggable = true;
 
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
 
             var text = document.createElement("span");
             text.textContent = taskText + " - " + priority + " Priority";
+            text.classList.add("taskItem");
+
+            // Creates a drag handle
+            var handle = document.createElement("span");
+            handle.textContent = "☰";
+            text.classList.add("dragHandle")
 
             // Toggle completed style
             checkbox.onclick = function () {
@@ -98,10 +105,51 @@
 
             li.appendChild(checkbox);
             li.appendChild(text);
+            li.appendChild(handle);
 
             document.getElementById("taskList").appendChild(li);
 
             document.getElementById("taskInput").value = "";
+
+            enableDragAndDrop(li);
+        }
+
+        // Function for dragging task items around within the list
+        function enableDragAndDrop(item) {
+            item.addEventListener("dragstart", function (e) {
+                item.classList.add("dragging");  
+            });
+
+            item.addEventListener("dragend", function () {
+                item.classList.remove("dragging");
+            });
+
+            var list = document.getElementById("taskList");
+            list.addEventListener("dragover", function (e) {
+                e.preventDefault();
+                var draggingItem = document.querySelector(".dragging");
+                var afterElement = getDragAfterElement(list, e.clientY);
+                if (afterElement == null) {
+                    list.appendChild(draggingItem);
+                } else {
+                    list.insertBefore(draggingItem, afterElement);
+                }   
+            });
+        }
+
+        // Function for inserting dragged item in the list based on users mouse
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
     </script>

@@ -91,8 +91,13 @@ li input[type="checkbox"] {
     height: 18px;
 }
 
-/* Task Text Alignment */
-li span {
+/* Task Item Text Alignment */
+li span.taskItem {
     flex: 1;
     text-align: center;
+}
+
+/* Drag Hangle */
+li span.dragHangle {
+    cursor: grab;
 }
