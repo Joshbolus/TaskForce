@@ -20,6 +20,18 @@
         li {
             margin: 8px 0;
         }
+
+        .taskDescription {
+            font-size: 12px;
+            color: gray;
+            margin-left: 24px;
+        }
+
+        .taskDate {
+            font-size: 12px;
+            color: gray;
+            margin-left: 24px;
+        }
     </style>
 </head>
 
@@ -45,12 +57,21 @@
 
         <br><br>
 
+        <input type="text" id="descriptionInput" placeholder="Enter a description (optional)">
+
+        <br><br>
+
         <label>Priority:</label>
         <select id="priority">
             <option>Low</option>
             <option>Medium</option>
             <option>High</option>
         </select>
+
+        <br><br>
+
+        <label>Due Date:</label>
+        <input type="date" id="dueDate">
 
         <br><br>
 
@@ -72,7 +93,9 @@
         // Add task to list
         function addTask() {
             var taskText = document.getElementById("taskInput").value;
+            var descriptionText = document.getElementById("descriptionInput").value;
             var priority = document.getElementById("priority").value;
+            var dueDate = document.getElementById("dueDate").value;
 
             if (taskText === "") {
                 alert("Please enter a task.");
@@ -85,31 +108,62 @@
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
 
-            var text = document.createElement("span");
+            var taskContainer = document.createElement("div");
+            taskContainer.style.display = "inline-block";
+            taskContainer.style.verticalAlign = "top";
+            taskContainer.style.marginLeft = "8px";
+
+            var text = document.createElement("div");
             text.textContent = taskText + " - " + priority + " Priority";
             text.classList.add("taskItem");
 
+            // Add description under task
+            var description = document.createElement("div");
+            description.textContent = descriptionText;
+            description.classList.add("taskDescription");
+
+            // Add due date under task
+            var date = document.createElement("div");
+            date.textContent = "Due: " + dueDate;
+            date.classList.add("taskDate");
+
             // Creates a drag handle
             var handle = document.createElement("span");
-            handle.textContent = "☰";
-            text.classList.add("dragHandle")
+            handle.textContent = " ☰";
+            handle.classList.add("dragHandle");
 
             // Toggle completed style
             checkbox.onclick = function () {
                 if (checkbox.checked) {
                     text.classList.add("completed");
+                    description.classList.add("completed");
+                    date.classList.add("completed");
                 } else {
                     text.classList.remove("completed");
+                    description.classList.remove("completed");
+                    date.classList.remove("completed");
                 }
             };
 
+            taskContainer.appendChild(text);
+
+            if (descriptionText !== "") {
+                taskContainer.appendChild(description);
+            }
+
+            if (dueDate !== "") {
+                taskContainer.appendChild(date);
+            }
+
             li.appendChild(checkbox);
-            li.appendChild(text);
+            li.appendChild(taskContainer);
             li.appendChild(handle);
 
             document.getElementById("taskList").appendChild(li);
 
             document.getElementById("taskInput").value = "";
+            document.getElementById("descriptionInput").value = "";
+            document.getElementById("dueDate").value = "";
 
             enableDragAndDrop(li);
         }
