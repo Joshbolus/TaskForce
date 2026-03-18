@@ -32,6 +32,14 @@
             color: gray;
             margin-left: 24px;
         }
+
+        .taskButtons {
+            margin-left: 10px;
+        }
+
+        .taskButtons button {
+            margin-right: 5px;
+        }
     </style>
 </head>
 
@@ -117,20 +125,27 @@
             text.textContent = taskText + " - " + priority + " Priority";
             text.classList.add("taskItem");
 
-            // Add description under task
             var description = document.createElement("div");
             description.textContent = descriptionText;
             description.classList.add("taskDescription");
 
-            // Add due date under task
             var date = document.createElement("div");
             date.textContent = "Due: " + dueDate;
             date.classList.add("taskDate");
 
-            // Creates a drag handle
             var handle = document.createElement("span");
             handle.textContent = " ☰";
             handle.classList.add("dragHandle");
+
+            // Task buttons
+            var buttonContainer = document.createElement("span");
+            buttonContainer.classList.add("taskButtons");
+
+            var editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
 
             // Toggle completed style
             checkbox.onclick = function () {
@@ -145,19 +160,76 @@
                 }
             };
 
+            // Edit task
+            editButton.onclick = function () {
+                var newTaskText = prompt("Edit task name:", taskText);
+                if (newTaskText === null || newTaskText === "") {
+                    return;
+                }
+
+                var newDescriptionText = prompt("Edit description:", descriptionText);
+                if (newDescriptionText === null) {
+                    newDescriptionText = descriptionText;
+                }
+
+                var newPriority = prompt("Edit priority (Low, Medium, High):", priority);
+                if (newPriority === null || newPriority === "") {
+                    newPriority = priority;
+                }
+
+                var newDueDate = prompt("Edit due date (YYYY-MM-DD):", dueDate);
+                if (newDueDate === null) {
+                    newDueDate = dueDate;
+                }
+
+                taskText = newTaskText;
+                descriptionText = newDescriptionText;
+                priority = newPriority;
+                dueDate = newDueDate;
+
+                text.textContent = taskText + " - " + priority + " Priority";
+                description.textContent = descriptionText;
+                date.textContent = "Due: " + dueDate;
+
+                if (descriptionText === "") {
+                    description.style.display = "none";
+                } else {
+                    description.style.display = "block";
+                }
+
+                if (dueDate === "") {
+                    date.style.display = "none";
+                } else {
+                    date.style.display = "block";
+                }
+            };
+
+            // Delete task
+            deleteButton.onclick = function () {
+                li.remove();
+            };
+
             taskContainer.appendChild(text);
 
             if (descriptionText !== "") {
                 taskContainer.appendChild(description);
+            } else {
+                description.style.display = "none";
             }
 
             if (dueDate !== "") {
                 taskContainer.appendChild(date);
+            } else {
+                date.style.display = "none";
             }
+
+            buttonContainer.appendChild(editButton);
+            buttonContainer.appendChild(deleteButton);
 
             li.appendChild(checkbox);
             li.appendChild(taskContainer);
             li.appendChild(handle);
+            li.appendChild(buttonContainer);
 
             document.getElementById("taskList").appendChild(li);
 
@@ -170,8 +242,8 @@
 
         // Function for dragging task items around within the list
         function enableDragAndDrop(item) {
-            item.addEventListener("dragstart", function (e) {
-                item.classList.add("dragging");  
+            item.addEventListener("dragstart", function () {
+                item.classList.add("dragging");
             });
 
             item.addEventListener("dragend", function () {
@@ -187,7 +259,7 @@
                     list.appendChild(draggingItem);
                 } else {
                     list.insertBefore(draggingItem, afterElement);
-                }   
+                }
             });
         }
 
