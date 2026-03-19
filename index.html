@@ -89,11 +89,6 @@
             text.textContent = taskText + " - " + priority + " Priority";
             text.classList.add("taskItem");
 
-            // Creates a drag handle
-            var handle = document.createElement("span");
-            handle.textContent = "☰";
-            text.classList.add("dragHandle")
-
             // Toggle completed style
             checkbox.onclick = function () {
                 if (checkbox.checked) {
@@ -103,9 +98,52 @@
                 }
             };
 
+            var dropdown = document.createElement("div");
+            dropdown.classList.add("dropdown");
+
+            // Dropdown button
+            var dropBtn = document.createElement("button");
+            dropBtn.textContent = "⋮";
+            dropBtn.classList.add("icon-button");
+
+            // Dropdown menu
+            var dropdownContent = document.createElement("div");
+            dropdownContent.classList.add("dropdown-content");
+
+            // Edit
+            var editOption = document.createElement("a");
+            editOption.href = "#";
+            editOption.textContent = "Edit";
+
+            // Delete
+            var deleteOption = document.createElement("a");
+            deleteOption.href = "#";
+            deleteOption.textContent = "Delete";
+            deleteOption.onclick = function () {
+                li.remove();
+            };
+
+            dropdownContent.appendChild(editOption);
+            dropdownContent.appendChild(deleteOption);
+
+            dropBtn.onclick = function () {
+                dropdownContent.classList.toggle("show");
+            };
+
+            dropdown.appendChild(dropBtn);
+            dropdown.appendChild(dropdownContent);
+            document.addEventListener("click", function (event) {
+            var dropdowns = document.querySelectorAll(".dropdown-content");
+            dropdowns.forEach(function (menu) {
+                if (!menu.parentElement.contains(event.target)) {
+                    menu.classList.remove("show");
+                }
+            });
+        });
+
             li.appendChild(checkbox);
             li.appendChild(text);
-            li.appendChild(handle);
+            li.appendChild(dropdown);
 
             document.getElementById("taskList").appendChild(li);
 
@@ -151,7 +189,7 @@
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
-
+        
     </script>
 
 </body>
