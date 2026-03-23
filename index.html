@@ -6,21 +6,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="stylesheet" href="style.css">
 
-    <style>
-        #taskForm {
-            display: none;
-            margin-top: 15px;
-        }
-
-        .completed {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        li {
-            margin: 8px 0;
-        }
-    </style>
 </head>
 
 <body>
@@ -42,6 +27,16 @@
     <div id="taskForm">
 
         <input type="text" id="taskInput" placeholder="Enter your task">
+
+        <br><br>
+
+        <label>Description:</label>
+        <input type="text" id="descriptionInput" placeholder="Enter description">
+
+        <br><br>
+
+        <label>Due Date:</label>
+        <input type="date" id="dueDate">
 
         <br><br>
 
@@ -73,6 +68,8 @@
         function addTask() {
             var taskText = document.getElementById("taskInput").value;
             var priority = document.getElementById("priority").value;
+            var descriptionText = document.getElementById("descriptionInput").value;
+            var dueDate = document.getElementById("dueDate").value;
 
             if (taskText === "") {
                 alert("Please enter a task.");
@@ -85,9 +82,20 @@
             var checkbox = document.createElement("input");
             checkbox.type = "checkbox";
 
+            var taskContainer = document.createElement("div");
+            taskContainer.classList.add("task-container");
+
             var text = document.createElement("span");
             text.textContent = taskText + " - " + priority + " Priority";
             text.classList.add("taskItem");
+
+            var description = document.createElement("div");
+            description.textContent = descriptionText;
+            description.classList.add("taskDescription");
+
+            var date = document.createElement("div");
+            date.textContent = "Due: " + dueDate;
+            date.classList.add("taskDate");
 
             // Toggle completed style
             checkbox.onclick = function () {
@@ -135,19 +143,25 @@
             document.addEventListener("click", function (event) {
             var dropdowns = document.querySelectorAll(".dropdown-content");
             dropdowns.forEach(function (menu) {
-                if (!menu.parentElement.contains(event.target)) {
-                    menu.classList.remove("show");
-                }
+                    if (!menu.parentElement.contains(event.target)) {
+                        menu.classList.remove("show");
+                    }
+                });
             });
-        });
+
+            taskContainer.appendChild(text);
+            taskContainer.appendChild(description);
+            taskContainer.appendChild(date);
 
             li.appendChild(checkbox);
-            li.appendChild(text);
+            li.appendChild(taskContainer);
             li.appendChild(dropdown);
 
             document.getElementById("taskList").appendChild(li);
 
             document.getElementById("taskInput").value = "";
+            document.getElementById("descriptionInput").value = "";
+            document.getElementById("dueDate").value = "";
 
             enableDragAndDrop(li);
         }
