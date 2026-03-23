@@ -6,6 +6,21 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="stylesheet" href="style.css">
 
+    <style>
+        #taskForm {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -30,22 +45,17 @@
 
         <br><br>
 
-        <label>Description:</label>
-        <input type="text" id="descriptionInput" placeholder="Enter description">
-
-        <br><br>
-
-        <label>Due Date:</label>
-        <input type="date" id="dueDate">
-
-        <br><br>
-
         <label>Priority:</label>
         <select id="priority">
             <option>Low</option>
             <option>Medium</option>
             <option>High</option>
         </select>
+
+        <br><br>
+
+        <label>Due Date:</label>
+        <input type="date" id="dueDate">
 
         <br><br>
 
@@ -67,9 +77,8 @@
         // Add task to list
         function addTask() {
             var taskText = document.getElementById("taskInput").value;
-            var priority = document.getElementById("priority").value;
             var descriptionText = document.getElementById("descriptionInput").value;
-            var dueDate = document.getElementById("dueDate").value;
+            var priority = document.getElementById("priority").value;
 
             if (taskText === "") {
                 alert("Please enter a task.");
@@ -85,77 +94,36 @@
             var taskContainer = document.createElement("div");
             taskContainer.classList.add("task-container");
 
-            var text = document.createElement("span");
+            var taskContainer = document.createElement("div");
+            taskContainer.style.display = "inline-block";
+            taskContainer.style.verticalAlign = "top";
+            taskContainer.style.marginLeft = "8px";
+
+            var text = document.createElement("div");
             text.textContent = taskText + " - " + priority + " Priority";
             text.classList.add("taskItem");
 
-            var description = document.createElement("div");
-            description.textContent = descriptionText;
-            description.classList.add("taskDescription");
-
-            var date = document.createElement("div");
-            date.textContent = "Due: " + dueDate;
-            date.classList.add("taskDate");
+            // Creates a drag handle
+            var handle = document.createElement("span");
+            handle.textContent = "☰";
+            text.classList.add("dragHandle")
 
             // Toggle completed style
             checkbox.onclick = function () {
                 if (checkbox.checked) {
                     text.classList.add("completed");
+                    description.classList.add("completed");
+                    date.classList.add("completed");
                 } else {
                     text.classList.remove("completed");
+                    description.classList.remove("completed");
+                    date.classList.remove("completed");
                 }
             };
 
-            var dropdown = document.createElement("div");
-            dropdown.classList.add("dropdown");
-
-            // Dropdown button
-            var dropBtn = document.createElement("button");
-            dropBtn.textContent = "⋮";
-            dropBtn.classList.add("icon-button");
-
-            // Dropdown menu
-            var dropdownContent = document.createElement("div");
-            dropdownContent.classList.add("dropdown-content");
-
-            // Edit
-            var editOption = document.createElement("a");
-            editOption.href = "#";
-            editOption.textContent = "Edit";
-
-            // Delete
-            var deleteOption = document.createElement("a");
-            deleteOption.href = "#";
-            deleteOption.textContent = "Delete";
-            deleteOption.onclick = function () {
-                li.remove();
-            };
-
-            dropdownContent.appendChild(editOption);
-            dropdownContent.appendChild(deleteOption);
-
-            dropBtn.onclick = function () {
-                dropdownContent.classList.toggle("show");
-            };
-
-            dropdown.appendChild(dropBtn);
-            dropdown.appendChild(dropdownContent);
-            document.addEventListener("click", function (event) {
-            var dropdowns = document.querySelectorAll(".dropdown-content");
-            dropdowns.forEach(function (menu) {
-                    if (!menu.parentElement.contains(event.target)) {
-                        menu.classList.remove("show");
-                    }
-                });
-            });
-
-            taskContainer.appendChild(text);
-            taskContainer.appendChild(description);
-            taskContainer.appendChild(date);
-
             li.appendChild(checkbox);
-            li.appendChild(taskContainer);
-            li.appendChild(dropdown);
+            li.appendChild(text);
+            li.appendChild(handle);
 
             document.getElementById("taskList").appendChild(li);
 
@@ -168,8 +136,8 @@
 
         // Function for dragging task items around within the list
         function enableDragAndDrop(item) {
-            item.addEventListener("dragstart", function (e) {
-                item.classList.add("dragging");  
+            item.addEventListener("dragstart", function () {
+                item.classList.add("dragging");
             });
 
             item.addEventListener("dragend", function () {
@@ -185,7 +153,7 @@
                     list.appendChild(draggingItem);
                 } else {
                     list.insertBefore(draggingItem, afterElement);
-                }   
+                }
             });
         }
 
