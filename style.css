@@ -190,7 +190,7 @@ li span.taskItem {
 /* =========================
    DRAG HANDLE
 ========================= */
-li span.dragHangle {
+li span.dragHandle {
     cursor: grab;
 }
 
