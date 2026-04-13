@@ -4,93 +4,112 @@
     <meta charset="UTF-8">
     <title>TickBox</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!-- Title and Logo -->
-    <div class="title-container">
-        <img src="favicon.png" alt="tickbox logo" class="title-icon">
-        <h1>TickBox</h1>
+    <div class="page-wrapper">
+
+        <!-- Header -->
+        <header class="site-header">
+            <div class="header-inner">
+                <div class="logo-group">
+                    <img src="favicon.png" alt="TickBox logo" class="logo-img">
+                    <h1>TickBox</h1>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <section class="hero">
+            <button id="startBtn" onclick="showForm()" class="btn-primary">
+                <span>Start a list</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+        </section>
+
+        <!-- Add Task Form -->
+        <div id="taskForm" class="card form-card">
+            <h2 class="form-title">New Task</h2>
+            <div class="form-grid">
+                <div class="field full">
+                    <label for="taskInput">Task name</label>
+                    <input type="text" id="taskInput" placeholder="What needs to be done?">
+                </div>
+                <div class="field full">
+                    <label for="descriptionInput">Description</label>
+                    <input type="text" id="descriptionInput" placeholder="Optional details…">
+                </div>
+                <div class="field">
+                    <label for="dueDate">Due date</label>
+                    <input type="date" id="dueDate">
+                </div>
+                <div class="field">
+                    <label for="priority">Priority</label>
+                    <select id="priority">
+                        <option>Low</option>
+                        <option>Medium</option>
+                        <option>High</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button onclick="addTask()" class="btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    Add task
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div id="progressSection" class="card progress-card">
+            <div class="progress-header">
+                <span class="progress-label">Progress</span>
+                <span id="progressText" class="progress-pct">0%</span>
+            </div>
+            <div class="progress-track">
+                <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <p class="progress-sub" id="progressSub">No tasks yet</p>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="controls-row">
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="filterTasks('all', this)">All</button>
+                <button class="filter-btn" onclick="filterTasks('active', this)">Active</button>
+                <button class="filter-btn" onclick="filterTasks('completed', this)">Done</button>
+            </div>
+            <div class="sort-group">
+                <label for="sortTasks">Sort</label>
+                <select id="sortTasks" onchange="sortTasks()">
+                    <option value="default">Default</option>
+                    <option value="priority">Priority</option>
+                    <option value="dueDate">Due date</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Task List -->
+        <ul id="taskList"></ul>
+
+        <footer class="site-footer">
+            <p>TickBox &mdash; Work in progress</p>
+        </footer>
+
     </div>
-    <small>Work in Progress</small>
-    <p>Personal To-Do Checklist</p>
-
-    <!-- Start Button -->
-    <div id="StartButton">
-        <button onclick="showForm()">Start a List</button>
-    </div>
-
-    <!-- Task Form -->
-    <div id="taskForm">
-        <input type="text" id="taskInput" placeholder="Enter your task">
-
-        <br><br>
-
-        <label>Description:</label>
-        <input type="text" id="descriptionInput" placeholder="Enter description">
-
-        <br><br>
-
-        <label>Due Date:</label>
-        <input type="date" id="dueDate">
-
-        <br><br>
-
-        <label>Priority:</label>
-        <select id="priority">
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-        </select>
-
-        <br><br>
-
-        <button onclick="addTask()">+ Add Task</button>
-    </div>
-
-    <br>
-
-    <!-- Progress Bar -->
-    <div id="progressSection">
-        <h3>Progress</h3>
-        <progress id="progressBar" value="0" max="100"></progress>
-        <p id="progressText">0% complete</p>
-    </div>
-
-    <!-- Controls -->
-    <div id="controls">
-        <label for="sortTasks">Sort By:</label>
-        <select id="sortTasks" onchange="sortTasks()">
-            <option value="default">Default</option>
-            <option value="priority">Priority</option>
-            <option value="dueDate">Due Date</option>
-        </select>
-
-        <br><br>
-
-        <button onclick="filterTasks('all')">All Tasks</button>
-        <button onclick="filterTasks('active')">Active Tasks</button>
-        <button onclick="filterTasks('completed')">Completed Tasks</button>
-    </div>
-
-    <!-- Task List -->
-    <h3>Task List</h3>
-    <ul id="taskList"></ul>
 
     <script>
-        // =========================================
-        // 1. START BUTTON / FORM DISPLAY
-        // =========================================
         function showForm() {
-            document.getElementById("taskForm").style.display = "block";
-            document.getElementById("StartButton").style.display = "none";
+            document.getElementById("taskForm").classList.add("visible");
+            document.getElementById("startBtn").style.display = "none";
+            document.getElementById("taskInput").focus();
         }
 
-        // =========================================
-        // 2. ADD TASK
-        // =========================================
         function addTask() {
             const taskText = document.getElementById("taskInput").value.trim();
             const descriptionText = document.getElementById("descriptionInput").value.trim();
@@ -98,258 +117,212 @@
             const priority = document.getElementById("priority").value;
 
             if (taskText === "") {
-                alert("Please enter a task.");
+                document.getElementById("taskInput").classList.add("shake");
+                setTimeout(() => document.getElementById("taskInput").classList.remove("shake"), 400);
                 return;
             }
 
             const li = document.createElement("li");
+            li.classList.add("task-item");
             li.draggable = true;
             li.dataset.completed = "false";
             li.dataset.priority = priority;
             li.dataset.dueDate = dueDate || "9999-12-31";
 
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
+            const priorityClass = priority.toLowerCase();
 
-            const taskContainer = document.createElement("div");
-            taskContainer.classList.add("task-container");
+            li.innerHTML = `
+                <div class="task-left">
+                    <label class="custom-checkbox">
+                        <input type="checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+                </div>
+                <div class="task-body">
+                    <div class="task-top-row">
+                        <span class="task-name">${escapeHtml(taskText)}</span>
+                        <span class="priority-badge priority-${priorityClass}">${priority}</span>
+                    </div>
+                    ${descriptionText ? `<p class="task-desc">${escapeHtml(descriptionText)}</p>` : ""}
+                    <p class="task-date">${dueDate ? "Due " + formatDate(dueDate) : "No due date"}</p>
+                </div>
+                <div class="task-actions">
+                    <div class="dropdown">
+                        <button class="icon-btn" title="More options">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="8" cy="3" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="8" cy="13" r="1.2"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="#" class="edit-option">Edit</a>
+                            <a href="#" class="delete-option danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            `;
 
-            const text = document.createElement("span");
-            text.textContent = taskText + " - " + priority + " Priority";
-            text.classList.add("taskItem");
+            const checkbox = li.querySelector("input[type='checkbox']");
+            const taskName = li.querySelector(".task-name");
 
-            const description = document.createElement("div");
-            description.textContent = descriptionText;
-            description.classList.add("taskDescription");
-
-            const date = document.createElement("div");
-            date.textContent = dueDate ? "Due: " + dueDate : "Due: No date set";
-            date.classList.add("taskDate");
-
-            checkbox.onclick = function () {
-                if (checkbox.checked) {
-                    text.classList.add("completed");
-                    li.dataset.completed = "true";
-                } else {
-                    text.classList.remove("completed");
-                    li.dataset.completed = "false";
-                }
+            checkbox.onchange = function () {
+                li.dataset.completed = checkbox.checked ? "true" : "false";
+                taskName.classList.toggle("completed", checkbox.checked);
+                li.classList.toggle("task-done", checkbox.checked);
                 updateProgressBar();
             };
 
-            // Dropdown
-            const dropdown = document.createElement("div");
-            dropdown.classList.add("dropdown");
-
-            const dropBtn = document.createElement("button");
-            dropBtn.textContent = "⋮";
-            dropBtn.classList.add("icon-button");
-
-            const dropdownContent = document.createElement("div");
-            dropdownContent.classList.add("dropdown-content");
-
-            // Edit button
-            const editOption = document.createElement("a");
-            editOption.href = "#";
-            editOption.textContent = "Edit";
-            editOption.onclick = function (e) {
-                e.preventDefault();
-
-                const currentTask = text.textContent.replace(" - " + li.dataset.priority + " Priority", "");
-                const currentDescription = description.textContent;
-                const currentDueDate = li.dataset.dueDate === "9999-12-31" ? "" : li.dataset.dueDate;
-                const currentPriority = li.dataset.priority;
-
-                const newTask = prompt("Edit task name:", currentTask);
-                if (newTask === null || newTask.trim() === "") return;
-
-                const newDescription = prompt("Edit description:", currentDescription);
-                if (newDescription === null) return;
-
-                const newDueDate = prompt("Edit due date (YYYY-MM-DD):", currentDueDate);
-                if (newDueDate === null) return;
-
-                const newPriority = prompt("Edit priority (Low, Medium, High):", currentPriority);
-                if (newPriority === null) return;
-
-                const cleanedPriority =
-                    newPriority.toLowerCase() === "high" ? "High" :
-                    newPriority.toLowerCase() === "medium" ? "Medium" :
-                    "Low";
-
-                li.dataset.priority = cleanedPriority;
-                li.dataset.dueDate = newDueDate.trim() === "" ? "9999-12-31" : newDueDate.trim();
-
-                text.textContent = newTask.trim() + " - " + cleanedPriority + " Priority";
-                description.textContent = newDescription.trim();
-                date.textContent = newDueDate.trim() === "" ? "Due: No date set" : "Due: " + newDueDate.trim();
-            };
-
-            // Delete button
-            const deleteOption = document.createElement("a");
-            deleteOption.href = "#";
-            deleteOption.textContent = "Delete";
-            deleteOption.onclick = function (e) {
-                e.preventDefault();
-                li.remove();
-                updateProgressBar();
-            };
-
-            dropdownContent.appendChild(editOption);
-            dropdownContent.appendChild(deleteOption);
+            const dropBtn = li.querySelector(".icon-btn");
+            const dropMenu = li.querySelector(".dropdown-menu");
 
             dropBtn.onclick = function (e) {
                 e.stopPropagation();
                 closeAllDropdowns();
-                dropdownContent.classList.toggle("show");
+                dropMenu.classList.toggle("show");
             };
 
-            dropdown.appendChild(dropBtn);
-            dropdown.appendChild(dropdownContent);
+            li.querySelector(".edit-option").onclick = function (e) {
+                e.preventDefault();
+                const currentTask = taskName.textContent;
+                const currentDesc = li.querySelector(".task-desc") ? li.querySelector(".task-desc").textContent : "";
+                const currentDueDate = li.dataset.dueDate === "9999-12-31" ? "" : li.dataset.dueDate;
+                const currentPriority = li.dataset.priority;
 
-            taskContainer.appendChild(text);
-            taskContainer.appendChild(description);
-            taskContainer.appendChild(date);
+                const newTask = prompt("Edit task name:", currentTask);
+                if (!newTask || !newTask.trim()) return;
+                const newDesc = prompt("Edit description:", currentDesc);
+                if (newDesc === null) return;
+                const newDueDate = prompt("Edit due date (YYYY-MM-DD):", currentDueDate);
+                if (newDueDate === null) return;
+                const newPriority = prompt("Edit priority (Low, Medium, High):", currentPriority);
+                if (newPriority === null) return;
 
-            li.appendChild(checkbox);
-            li.appendChild(taskContainer);
-            li.appendChild(dropdown);
+                const cleaned = ["high","medium","low"].includes(newPriority.toLowerCase())
+                    ? newPriority.charAt(0).toUpperCase() + newPriority.slice(1).toLowerCase()
+                    : "Low";
 
+                li.dataset.priority = cleaned;
+                li.dataset.dueDate = newDueDate.trim() || "9999-12-31";
+                taskName.textContent = newTask.trim();
+
+                const badge = li.querySelector(".priority-badge");
+                badge.textContent = cleaned;
+                badge.className = "priority-badge priority-" + cleaned.toLowerCase();
+
+                const dateEl = li.querySelector(".task-date");
+                dateEl.textContent = newDueDate.trim() ? "Due " + formatDate(newDueDate.trim()) : "No due date";
+
+                let descEl = li.querySelector(".task-desc");
+                if (newDesc.trim()) {
+                    if (!descEl) {
+                        descEl = document.createElement("p");
+                        descEl.classList.add("task-desc");
+                        li.querySelector(".task-body").insertBefore(descEl, dateEl);
+                    }
+                    descEl.textContent = newDesc.trim();
+                } else if (descEl) {
+                    descEl.remove();
+                }
+
+                dropMenu.classList.remove("show");
+            };
+
+            li.querySelector(".delete-option").onclick = function (e) {
+                e.preventDefault();
+                li.classList.add("removing");
+                setTimeout(() => { li.remove(); updateProgressBar(); }, 300);
+            };
+
+            enableDragAndDrop(li);
             document.getElementById("taskList").appendChild(li);
 
-            // Clear inputs
+            li.style.animation = "slideIn 0.3s ease forwards";
+
             document.getElementById("taskInput").value = "";
             document.getElementById("descriptionInput").value = "";
             document.getElementById("dueDate").value = "";
             document.getElementById("priority").value = "Low";
 
-            enableDragAndDrop(li);
             updateProgressBar();
         }
 
-        // =========================================
-        // 3. EDIT / DELETE DROPDOWN HELPERS
-        // =========================================
+        function escapeHtml(str) {
+            return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr + "T00:00:00");
+            return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        }
+
         function closeAllDropdowns() {
-            const dropdowns = document.querySelectorAll(".dropdown-content");
-            dropdowns.forEach(menu => menu.classList.remove("show"));
+            document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
         }
 
-        document.addEventListener("click", function (event) {
-            const dropdowns = document.querySelectorAll(".dropdown-content");
-            dropdowns.forEach(function (menu) {
-                if (!menu.parentElement.contains(event.target)) {
-                    menu.classList.remove("show");
-                }
-            });
-        });
+        document.addEventListener("click", function () { closeAllDropdowns(); });
 
-        // =========================================
-        // 4. PROGRESS BAR
-        // =========================================
         function updateProgressBar() {
-            const tasks = document.querySelectorAll("#taskList li");
-            const completedTasks = document.querySelectorAll('#taskList li[data-completed="true"]');
-
+            const tasks = document.querySelectorAll("#taskList .task-item");
+            const done = document.querySelectorAll('#taskList .task-item[data-completed="true"]');
             const total = tasks.length;
-            const completed = completedTasks.length;
-            const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+            const completed = done.length;
+            const pct = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-            document.getElementById("progressBar").value = percent;
-            document.getElementById("progressText").textContent = percent + "% complete";
+            document.getElementById("progressFill").style.width = pct + "%";
+            document.getElementById("progressText").textContent = pct + "%";
+            document.getElementById("progressSub").textContent =
+                total === 0 ? "No tasks yet" :
+                completed === total ? "All done! Great work." :
+                `${completed} of ${total} tasks complete`;
         }
 
-        // =========================================
-        // 5. SORT TASKS
-        // =========================================
         function sortTasks() {
             const list = document.getElementById("taskList");
             const tasks = Array.from(list.children);
             const sortType = document.getElementById("sortTasks").value;
+            const prio = { High: 3, Medium: 2, Low: 1 };
 
-            const priorityOrder = {
-                "High": 3,
-                "Medium": 2,
-                "Low": 1
-            };
-
-            tasks.sort(function (a, b) {
-                if (sortType === "priority") {
-                    return priorityOrder[b.dataset.priority] - priorityOrder[a.dataset.priority];
-                }
-
-                if (sortType === "dueDate") {
-                    return new Date(a.dataset.dueDate) - new Date(b.dataset.dueDate);
-                }
-
+            tasks.sort((a, b) => {
+                if (sortType === "priority") return prio[b.dataset.priority] - prio[a.dataset.priority];
+                if (sortType === "dueDate") return new Date(a.dataset.dueDate) - new Date(b.dataset.dueDate);
                 return 0;
             });
 
             list.innerHTML = "";
-            tasks.forEach(task => list.appendChild(task));
+            tasks.forEach(t => list.appendChild(t));
         }
 
-        // =========================================
-        // 6. FILTER TASKS
-        // =========================================
-        function filterTasks(filterType) {
-            const tasks = document.querySelectorAll("#taskList li");
-
-            tasks.forEach(task => {
-                const isCompleted = task.dataset.completed === "true";
-
-                if (filterType === "all") {
-                    task.style.display = "flex";
-                } else if (filterType === "active") {
-                    task.style.display = isCompleted ? "none" : "flex";
-                } else if (filterType === "completed") {
-                    task.style.display = isCompleted ? "flex" : "none";
-                }
+        function filterTasks(type, btn) {
+            document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+            if (btn) btn.classList.add("active");
+            document.querySelectorAll("#taskList .task-item").forEach(task => {
+                const done = task.dataset.completed === "true";
+                task.style.display =
+                    type === "active" && done ? "none" :
+                    type === "completed" && !done ? "none" : "flex";
             });
         }
 
-        // =========================================
-        // 7. DRAG AND DROP
-        // =========================================
         function enableDragAndDrop(item) {
-            item.addEventListener("dragstart", function () {
-                item.classList.add("dragging");
-            });
-
-            item.addEventListener("dragend", function () {
-                item.classList.remove("dragging");
-            });
+            item.addEventListener("dragstart", () => item.classList.add("dragging"));
+            item.addEventListener("dragend", () => item.classList.remove("dragging"));
         }
 
         const list = document.getElementById("taskList");
-
         list.addEventListener("dragover", function (e) {
             e.preventDefault();
-            const draggingItem = document.querySelector(".dragging");
-            const afterElement = getDragAfterElement(list, e.clientY);
-
-            if (!draggingItem) return;
-
-            if (afterElement == null) {
-                list.appendChild(draggingItem);
-            } else {
-                list.insertBefore(draggingItem, afterElement);
-            }
+            const dragging = document.querySelector(".dragging");
+            const after = getDragAfterElement(list, e.clientY);
+            if (!dragging) return;
+            after ? list.insertBefore(dragging, after) : list.appendChild(dragging);
         });
 
         function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
-
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
+            return [...container.querySelectorAll(".task-item:not(.dragging)")]
+                .reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    return offset < 0 && offset > closest.offset ? { offset, element: child } : closest;
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
     </script>
 
