@@ -564,6 +564,93 @@ ul {
 }
 
 /* =========================
+   THEME TOGGLE BUTTON
+========================= */
+.theme-toggle {
+    background: var(--cream-dark);
+    border: 1px solid var(--border-strong);
+    border-radius: 100px;
+    padding: 7px 10px;
+    cursor: pointer;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+}
+
+.icon-moon { display: none; }
+.icon-sun  { display: block; }
+
+body.dark .icon-moon { display: block; }
+body.dark .icon-sun  { display: none; }
+
+/* =========================
+   DARK MODE
+========================= */
+body.dark {
+    --cream: #0F1A24;
+    --cream-dark: #172230;
+    --ink: #E8F1F8;
+    --ink-muted: #7AAABF;
+    --ink-faint: #4A6B80;
+    --accent: #3DA0E0;
+    --accent-light: #112233;
+    --accent-hover: #5AB5EE;
+    --border: rgba(200, 225, 245, 0.08);
+    --border-strong: rgba(200, 225, 245, 0.15);
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+
+    --prio-high-bg: #2C1410;
+    --prio-high-text: #F4897A;
+    --prio-medium-bg: #271E08;
+    --prio-medium-text: #F0C060;
+    --prio-low-bg: #0C2218;
+    --prio-low-text: #4DD4A0;
+}
+
+body.dark .card,
+body.dark .task-item,
+body.dark .dropdown-menu {
+    background: #162030;
+}
+
+body.dark .filter-btn.active {
+    background: #1E3048;
+    color: var(--ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+body.dark input[type="text"],
+body.dark input[type="date"],
+body.dark select {
+    background: #0F1A24;
+    color: var(--ink);
+    color-scheme: dark;
+}
+
+body.dark .sort-group select {
+    background: #162030;
+}
+
+body.dark .dropdown-menu a:hover {
+    background: #1E3048;
+}
+
+body.dark .dropdown-menu a.danger:hover {
+    background: #2C1410;
+}
+
+body.dark .icon-btn:hover {
+    background: #1E3048;
+}
+
+/* =========================
    FOOTER
 ========================= */
 .site-footer {
