@@ -8,6 +8,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Firebase SDKs (compat version — works with plain script tags) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhISTYliIrfDvVcLDq_fm9w62x_nRbnC4",
+            authDomain: "tickbox-fe98f.firebaseapp.com",
+            projectId: "tickbox-fe98f",
+            storageBucket: "tickbox-fe98f.firebasestorage.app",
+            messagingSenderId: "683114810754",
+            appId: "1:683114810754:web:a974b071371dca95f0d39b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const tasksCollection = db.collection("tasks");
+    </script>
 </head>
 
 <body>
@@ -73,6 +91,12 @@
             </div>
         </div>
 
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="spinner"></div>
+            <span>Loading your tasks…</span>
+        </div>
+
         <!-- Progress -->
         <div id="progressSection" class="card progress-card">
             <div class="progress-header">
@@ -106,53 +130,69 @@
         <ul id="taskList"></ul>
 
         <footer class="site-footer">
-            <p>TickBox</p>
+            <p>TickBox &mdash; Work in progress</p>
         </footer>
 
     </div>
 
     <script>
-        function showForm() {
-            document.getElementById("taskForm").classList.add("visible");
-            document.getElementById("startBtn").style.display = "none";
-            document.getElementById("taskInput").focus();
+
+        // =========================================
+        // FIREBASE HELPERS
+        // =========================================
+
+        async function saveTaskToFirebase(taskData) {
+            const docRef = await tasksCollection.add({
+                ...taskData,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return docRef.id;
         }
 
-        function addTask() {
-            const taskText = document.getElementById("taskInput").value.trim();
-            const descriptionText = document.getElementById("descriptionInput").value.trim();
-            const dueDate = document.getElementById("dueDate").value;
-            const priority = document.getElementById("priority").value;
+        async function updateTaskInFirebase(docId, updates) {
+            await tasksCollection.doc(docId).update(updates);
+        }
 
-            if (taskText === "") {
-                document.getElementById("taskInput").classList.add("shake");
-                setTimeout(() => document.getElementById("taskInput").classList.remove("shake"), 400);
-                return;
-            }
+        async function deleteTaskFromFirebase(docId) {
+            await tasksCollection.doc(docId).delete();
+        }
+
+        async function loadTasksFromFirebase() {
+            const snapshot = await tasksCollection.orderBy("createdAt", "asc").get();
+            return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        }
+
+        // =========================================
+        // RENDER A TASK
+        // =========================================
+        function renderTask(taskData, docId) {
+            const { name, description, dueDate, priority, completed } = taskData;
+            const priorityClass = priority.toLowerCase();
 
             const li = document.createElement("li");
             li.classList.add("task-item");
             li.draggable = true;
-            li.dataset.completed = "false";
+            li.dataset.completed = completed ? "true" : "false";
             li.dataset.priority = priority;
             li.dataset.dueDate = dueDate || "9999-12-31";
+            li.dataset.docId = docId;
 
-            const priorityClass = priority.toLowerCase();
+            if (completed) li.classList.add("task-done");
 
             li.innerHTML = `
                 <div class="task-left">
                     <label class="custom-checkbox">
-                        <input type="checkbox">
+                        <input type="checkbox" ${completed ? "checked" : ""}>
                         <span class="checkmark"></span>
                     </label>
                 </div>
                 <div class="task-body">
                     <div class="task-top-row">
-                        <span class="task-name">${escapeHtml(taskText)}</span>
+                        <span class="task-name ${completed ? "completed" : ""}">${escapeHtml(name)}</span>
                         <span class="priority-badge priority-${priorityClass}">${priority}</span>
                     </div>
-                    ${descriptionText ? `<p class="task-desc">${escapeHtml(descriptionText)}</p>` : ""}
-                    <p class="task-date">${dueDate ? "Due " + formatDate(dueDate) : "No due date"}</p>
+                    ${description ? `<p class="task-desc">${escapeHtml(description)}</p>` : ""}
+                    <p class="task-date">${dueDate && dueDate !== "9999-12-31" ? "Due " + formatDate(dueDate) : "No due date"}</p>
                 </div>
                 <div class="task-actions">
                     <div class="dropdown">
@@ -169,16 +209,20 @@
                 </div>
             `;
 
+            // Checkbox — toggle + save to Firebase
             const checkbox = li.querySelector("input[type='checkbox']");
             const taskName = li.querySelector(".task-name");
 
-            checkbox.onchange = function () {
-                li.dataset.completed = checkbox.checked ? "true" : "false";
-                taskName.classList.toggle("completed", checkbox.checked);
-                li.classList.toggle("task-done", checkbox.checked);
+            checkbox.onchange = async function () {
+                const isChecked = checkbox.checked;
+                li.dataset.completed = isChecked ? "true" : "false";
+                taskName.classList.toggle("completed", isChecked);
+                li.classList.toggle("task-done", isChecked);
                 updateProgressBar();
+                await updateTaskInFirebase(li.dataset.docId, { completed: isChecked });
             };
 
+            // Dropdown toggle
             const dropBtn = li.querySelector(".icon-btn");
             const dropMenu = li.querySelector(".dropdown-menu");
 
@@ -188,7 +232,8 @@
                 dropMenu.classList.toggle("show");
             };
 
-            li.querySelector(".edit-option").onclick = function (e) {
+            // Edit — update UI + Firebase
+            li.querySelector(".edit-option").onclick = async function (e) {
                 e.preventDefault();
                 const currentTask = taskName.textContent;
                 const currentDesc = li.querySelector(".task-desc") ? li.querySelector(".task-desc").textContent : "";
@@ -204,7 +249,7 @@
                 const newPriority = prompt("Edit priority (Low, Medium, High):", currentPriority);
                 if (newPriority === null) return;
 
-                const cleaned = ["high","medium","low"].includes(newPriority.toLowerCase())
+                const cleaned = ["high", "medium", "low"].includes(newPriority.toLowerCase())
                     ? newPriority.charAt(0).toUpperCase() + newPriority.slice(1).toLowerCase()
                     : "Low";
 
@@ -232,29 +277,112 @@
                 }
 
                 dropMenu.classList.remove("show");
+
+                await updateTaskInFirebase(li.dataset.docId, {
+                    name: newTask.trim(),
+                    description: newDesc.trim(),
+                    dueDate: newDueDate.trim() || "9999-12-31",
+                    priority: cleaned
+                });
             };
 
-            li.querySelector(".delete-option").onclick = function (e) {
+            // Delete — remove from UI + Firebase
+            li.querySelector(".delete-option").onclick = async function (e) {
                 e.preventDefault();
+                const docId = li.dataset.docId;
                 li.classList.add("removing");
-                setTimeout(() => { li.remove(); updateProgressBar(); }, 300);
+                setTimeout(async () => {
+                    li.remove();
+                    updateProgressBar();
+                    await deleteTaskFromFirebase(docId);
+                }, 300);
             };
 
             enableDragAndDrop(li);
-            document.getElementById("taskList").appendChild(li);
+            return li;
+        }
 
+        // =========================================
+        // ADD TASK
+        // =========================================
+        async function addTask() {
+            const taskText = document.getElementById("taskInput").value.trim();
+            const descriptionText = document.getElementById("descriptionInput").value.trim();
+            const dueDate = document.getElementById("dueDate").value;
+            const priority = document.getElementById("priority").value;
+
+            if (taskText === "") {
+                document.getElementById("taskInput").classList.add("shake");
+                setTimeout(() => document.getElementById("taskInput").classList.remove("shake"), 400);
+                return;
+            }
+
+            const taskData = {
+                name: taskText,
+                description: descriptionText,
+                dueDate: dueDate || "9999-12-31",
+                priority: priority,
+                completed: false
+            };
+
+            // Save to Firestore first — we need the real doc ID
+            const docId = await saveTaskToFirebase(taskData);
+
+            const li = renderTask(taskData, docId);
             li.style.animation = "slideIn 0.3s ease forwards";
+            document.getElementById("taskList").appendChild(li);
 
             document.getElementById("taskInput").value = "";
             document.getElementById("descriptionInput").value = "";
             document.getElementById("dueDate").value = "";
             document.getElementById("priority").value = "Low";
+            document.getElementById("taskInput").focus();
 
             updateProgressBar();
         }
 
+        // =========================================
+        // LOAD TASKS ON PAGE LOAD
+        // =========================================
+        async function loadTasks() {
+            const loading = document.getElementById("loadingIndicator");
+            loading.style.display = "flex";
+
+            try {
+                const tasks = await loadTasksFromFirebase();
+
+                if (tasks.length > 0) {
+                    document.getElementById("taskForm").classList.add("visible");
+                    document.getElementById("startBtn").style.display = "none";
+
+                    tasks.forEach(task => {
+                        const li = renderTask(task, task.id);
+                        document.getElementById("taskList").appendChild(li);
+                    });
+                }
+
+                updateProgressBar();
+            } catch (err) {
+                console.error("Error loading tasks:", err);
+            } finally {
+                loading.style.display = "none";
+            }
+        }
+
+        // =========================================
+        // SHOW FORM
+        // =========================================
+        function showForm() {
+            document.getElementById("taskForm").classList.add("visible");
+            document.getElementById("startBtn").style.display = "none";
+            document.getElementById("taskInput").focus();
+        }
+
+        // =========================================
+        // UTILITIES
+        // =========================================
         function escapeHtml(str) {
-            return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
         function formatDate(dateStr) {
@@ -268,6 +396,9 @@
 
         document.addEventListener("click", function () { closeAllDropdowns(); });
 
+        // =========================================
+        // PROGRESS BAR
+        // =========================================
         function updateProgressBar() {
             const tasks = document.querySelectorAll("#taskList .task-item");
             const done = document.querySelectorAll('#taskList .task-item[data-completed="true"]');
@@ -283,6 +414,9 @@
                 `${completed} of ${total} tasks complete`;
         }
 
+        // =========================================
+        // SORT
+        // =========================================
         function sortTasks() {
             const list = document.getElementById("taskList");
             const tasks = Array.from(list.children);
@@ -299,6 +433,9 @@
             tasks.forEach(t => list.appendChild(t));
         }
 
+        // =========================================
+        // FILTER
+        // =========================================
         function filterTasks(type, btn) {
             document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
             if (btn) btn.classList.add("active");
@@ -310,6 +447,9 @@
             });
         }
 
+        // =========================================
+        // DRAG AND DROP
+        // =========================================
         function enableDragAndDrop(item) {
             item.addEventListener("dragstart", () => item.classList.add("dragging"));
             item.addEventListener("dragend", () => item.classList.remove("dragging"));
@@ -332,16 +472,26 @@
                     return offset < 0 && offset > closest.offset ? { offset, element: child } : closest;
                 }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
+
+        // =========================================
+        // DARK MODE
+        // =========================================
         function toggleTheme() {
             const isDark = document.body.classList.toggle("dark");
             localStorage.setItem("theme", isDark ? "dark" : "light");
         }
 
-        (function() {
+        (function () {
             if (localStorage.getItem("theme") === "dark") {
                 document.body.classList.add("dark");
             }
         })();
+
+        // =========================================
+        // INIT
+        // =========================================
+        loadTasks();
+
     </script>
 
 </body>

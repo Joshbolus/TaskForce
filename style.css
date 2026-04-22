@@ -564,6 +564,32 @@ ul {
 }
 
 /* =========================
+   LOADING INDICATOR
+========================= */
+.loading-indicator {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    color: var(--ink-muted);
+    font-size: 14px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--cream-dark);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* =========================
    THEME TOGGLE BUTTON
 ========================= */
 .theme-toggle {
